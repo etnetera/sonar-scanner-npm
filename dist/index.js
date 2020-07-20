@@ -28,7 +28,7 @@ function scanCLI(cliArgs, params, callback) {
   var optionsExec = prepareExecEnvironment(params, process)
 
   // determine the command to run and execute it
-  scannerExecutable(sqScannerCommand => {
+  scannerExecutable((sqScannerCommand) => {
     try {
       exec(sqScannerCommand, fromParam().concat(cliArgs), optionsExec)
       log('Analysis finished.')
@@ -49,7 +49,7 @@ function scanUsingCustomScanner(params, callback) {
   var optionsExec = prepareExecEnvironment(params, process)
 
   // determine the command to run and execute it
-  localscannerExecutable(sqScannerCommand => {
+  localscannerExecutable((sqScannerCommand) => {
     try {
       exec(sqScannerCommand, fromParam(), optionsExec)
       log('Analysis finished.')
@@ -61,5 +61,11 @@ function scanUsingCustomScanner(params, callback) {
 }
 
 function fromParam() {
-  return [`--from=ScannerNpm/${version}`]
+  const forcedScannerCLIVersion = process.env.SONAR_SCANNER_VERSION || process.env.npm_config_sonar_scanner_version
+  if (forcedScannerCLIVersion && forcedScannerCLIVersion < '4.4') {
+    // When the scanner version is forced through SONAR_SCANNER_VERSION, and version is less than 4.4, don't use the scanner identity parameter
+    return []
+  } else {
+    return [`--from=ScannerNpm/${version}`]
+  }
 }
