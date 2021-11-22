@@ -135,6 +135,26 @@ or alternatively set variable in `.npmrc`
     sonar_binary_cache=/Users/myaccount/cache
 ```
 
+## Explicitly specifying target OS from env
+
+By default, the scanner tries to get the target OS from `process.platform`. You can override this by specifying the environment variable `SONAR_SCANNER_TARGET_OS`. Possible values are `'windows', 'linux', 'macosx', 'universal'` (specifying `universal` will download the binary without any OS suffix).
+
+**Example:**
+
+```shell
+SONAR_SCANNER_TARGET_OS=universal sonar-scanner
+```
+
+## Using a existing local copy of Sonar scanner binary
+
+By default, the scanner tries to download the binaries or use the cached binaries (after downloading). If you want to have complete control of the binaries (version, location on file system, ...), you can download it yourself and then use the environment variable `SONAR_SCANNER_BIN` to specify the path to the binaries.
+
+**Example:**
+
+```shell
+SONAR_SCANNER_BIN=/home/foo/sonar-scanner/bin/sonar-scanner sonar-scanner
+```
+
 ## License
 
 `sonarqube-scanner` is licensed under the [LGPL v3 License](http://www.gnu.org/licenses/lgpl.txt).

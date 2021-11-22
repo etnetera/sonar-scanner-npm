@@ -1,7 +1,7 @@
 {
-  "name": "sonarqube-scanner",
-  "description": "SonarQube/SonarCloud Scanner for the JavaScript world",
-  "version": "2.8.1",
+  "name": "@etnetera/sonarqube-scanner",
+  "description": "Forked SonarQube/SonarCloud Scanner for the JavaScript world. Forked from: https://github.com/bellingard/sonar-scanner-npm",
+  "version": "2.8.2",
   "homepage": "https://github.com/bellingard/sonar-scanner-npm",
   "author": {
     "name": "Fabrice Bellingard",
@@ -9,10 +9,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bellingard/sonar-scanner-npm.git"
+    "url": "git+https://github.com/etnetera/sonar-scanner-npm.git"
   },
   "bugs": {
-    "url": "https://github.com/bellingard/sonar-scanner-npm/issues"
+    "url": "https://github.com/etnetera/sonar-scanner-npm/issues"
   },
   "license": "LGPL-3.0",
   "main": "src/index.js",
