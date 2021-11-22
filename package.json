@@ -54,6 +54,7 @@
     "sonar-runner"
   ],
   "scripts": {
+    "test-watch": "mocha -w -R spec",
     "test": "npx nyc mocha",
     "ci": "npm run test && node ci-analysis.js"
   }
