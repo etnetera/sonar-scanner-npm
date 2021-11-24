@@ -15,9 +15,11 @@ module.exports.getSonarScannerExecutable = getSonarScannerExecutable;
 module.exports.getLocalSonarScannerExecutable = getLocalSonarScannerExecutable;
 module.exports.getInstallFolderPath = getInstallFolderPath;
 module.exports.findTargetOS = findTargetOS;
+module.exports.getPlatformSuffix = getPlatformSuffix;
 
 const SONAR_SCANNER_MIRROR = 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/';
 const SONAR_SCANNER_VERSION = '4.5.0.2216';
+const SUPPORTED_PLATFORMS = ['windows', 'linux', 'macosx', 'universal'];
 
 const bar = new ProgressBar('[:bar] :percent :etas', {
   complete: '=',
@@ -64,6 +66,7 @@ function getSonarScannerExecutable (passExecutableCallback) {
   const platformBinariesVersion =
     process.env.SONAR_SCANNER_VERSION || process.env.npm_config_sonar_scanner_version || SONAR_SCANNER_VERSION;
   var targetOS = findTargetOS();
+  var platformSuffix = getPlatformSuffix(targetOS);
   var installFolder = getInstallFolderPath();
   var binaryExtension = '';
   if (isWindows()) {
@@ -71,7 +74,7 @@ function getSonarScannerExecutable (passExecutableCallback) {
   }
   var platformExecutable = path.join(
     installFolder,
-    `sonar-scanner-${platformBinariesVersion}-${targetOS}`,
+    `sonar-scanner-${platformBinariesVersion}${platformSuffix}`,
     'bin',
     `sonar-scanner${binaryExtension}`
   );
@@ -102,16 +105,18 @@ function getSonarScannerExecutable (passExecutableCallback) {
   log('Creating ' + installFolder);
   mkdirs(installFolder);
   var baseUrl = process.env.SONAR_SCANNER_MIRROR || process.env.npm_config_sonar_scanner_mirror || SONAR_SCANNER_MIRROR;
-  var fileName = 'sonar-scanner-cli-' + platformBinariesVersion + (targetOS === 'universal' ? '' : '-' + targetOS) + '.zip';
+  var fileName = 'sonar-scanner-cli-' + platformBinariesVersion + platformSuffix + '.zip';
   var downloadUrl = baseUrl + fileName;
   log(`Downloading from ${downloadUrl}`);
   log(`(executable will be saved in cache folder: ${installFolder})`);
   download(downloadUrl, installFolder, { extract: true })
     .on('response', res => {
       bar.total = res.headers['content-length'];
+      log(`Downloaded total: ${bar.total}`);
       res.on('data', data => bar.tick(data.length));
     })
     .then(() => {
+      log(`passExecutableCallback: ${platformExecutable}`);
       passExecutableCallback(platformExecutable);
     })
     .catch(err => {
@@ -152,7 +157,6 @@ function getLocalSonarScannerExecutable (passExecutableCallback) {
  * Get the target OS based on the platform name
  */
 function findTargetOS () {
-  const supportedPlatforms = ['windows', 'linux', 'macosx', 'universal'];
   let targetOs = process.platform;
 
   if (isWindows()) {
@@ -171,11 +175,26 @@ function findTargetOS () {
     targetOs = envPlatform;
   }
 
-  if (supportedPlatforms.indexOf(targetOs) < 0) {
+  if (SUPPORTED_PLATFORMS.indexOf(targetOs) < 0) {
     throw Error(`Your platform '${targetOs}' is currently not supported.`);
   }
 
   return targetOs;
+}
+
+/**
+ * Get the platform suffix for downloading or path checking
+ */
+function getPlatformSuffix (platform) {
+  if (SUPPORTED_PLATFORMS.indexOf(platform) < 0) {
+    throw Error(`Your platform '${platform}' is currently not supported.`);
+  }
+
+  if (platform === 'universal') {
+    return '';
+  }
+
+  return `-${platform}`;
 }
 
 function getInstallFolderPath () {

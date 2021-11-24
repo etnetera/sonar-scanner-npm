@@ -98,19 +98,26 @@ describe('findTargetOS', function () {
 
     process.env.SONAR_SCANNER_TARGET_OS = 'windows';
     assert.equal(index.findTargetOS(), 'windows');
+    assert.equal(index.getPlatformSuffix('windows'), '-windows');
 
     process.env.SONAR_SCANNER_TARGET_OS = 'macosx';
     assert.equal(index.findTargetOS(), 'macosx');
+    assert.equal(index.getPlatformSuffix('macosx'), '-macosx');
 
     process.env.SONAR_SCANNER_TARGET_OS = 'linux';
     assert.equal(index.findTargetOS(), 'linux');
+    assert.equal(index.getPlatformSuffix('linux'), '-linux');
 
     process.env.SONAR_SCANNER_TARGET_OS = 'universal';
     assert.equal(index.findTargetOS(), 'universal');
+    assert.equal(index.getPlatformSuffix('universal'), '');
 
     process.env.SONAR_SCANNER_TARGET_OS = 'bar';
     assert.throws(function () {
       index.findTargetOS();
+    }, /Your platform 'bar' is currently not supported\./);
+    assert.throws(function () {
+      index.getPlatformSuffix('bar');
     }, /Your platform 'bar' is currently not supported\./);
   });
 

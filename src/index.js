@@ -34,6 +34,7 @@ function scanCLI (cliArgs, params, callback) {
       log('Analysis finished.');
       callback();
     } catch (error) {
+      log.error(`Executable path not found: ${sqScannerCommand}`);
       process.exit(error.status);
     }
   });
