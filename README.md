@@ -142,7 +142,7 @@ By default, the scanner tries to get the target OS from `process.platform`. You 
 **Example:**
 
 ```shell
-SONAR_SCANNER_TARGET_OS=universal sonar-scanner
+export SONAR_SCANNER_TARGET_OS=universal
 ```
 
 ## Using a existing local copy of Sonar scanner binary
@@ -152,7 +152,7 @@ By default, the scanner tries to download the binaries or use the cached binarie
 **Example:**
 
 ```shell
-SONAR_SCANNER_BIN=/home/foo/sonar-scanner/bin/sonar-scanner sonar-scanner
+export SONAR_SCANNER_BIN=/home/foo/sonar-scanner/bin/sonar-scanner
 ```
 
 ## License
