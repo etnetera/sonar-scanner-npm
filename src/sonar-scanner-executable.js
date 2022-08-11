@@ -4,7 +4,8 @@ var os = require('os');
 var exec = require('child_process').execSync;
 var mkdirs = require('mkdirp').sync;
 var extend = require('extend');
-var download = require('download');
+var Downloader = require('nodejs-file-downloader');
+var decompress = require('decompress');
 var ProgressBar = require('progress');
 var log = require('fancy-log');
 var logError = log.error;
@@ -62,7 +63,7 @@ function prepareExecEnvironment (params, process) {
 /*
  * Returns the SQ Scanner executable for the current platform
  */
-function getSonarScannerExecutable (passExecutableCallback) {
+async function getSonarScannerExecutable (passExecutableCallback) {
   const platformBinariesVersion =
     process.env.SONAR_SCANNER_VERSION || process.env.npm_config_sonar_scanner_version || SONAR_SCANNER_VERSION;
   var targetOS = findTargetOS();
@@ -109,24 +110,42 @@ function getSonarScannerExecutable (passExecutableCallback) {
   var downloadUrl = baseUrl + fileName;
   log(`Downloading from ${downloadUrl}`);
   log(`(executable will be saved in cache folder: ${installFolder})`);
-  download(downloadUrl, installFolder, { extract: true })
-    .on('response', res => {
-      bar.total = res.headers['content-length'];
-      log(`Downloaded total: ${bar.total}`);
-      res.on('data', data => bar.tick(data.length));
-    })
-    .then(() => {
-      log(`passExecutableCallback: ${platformExecutable}`);
-      passExecutableCallback(platformExecutable);
-    })
-    .catch(err => {
-      logError(`ERROR: impossible to download and extract binary: ${err.message}`);
-      logError(`       SonarScanner binaries probably don't exist for your OS (${targetOS}).`);
-      logError(
-        '       In such situation, the best solution is to install the standard SonarScanner (requires a JVM).'
-      );
-      logError('       Check it out at https://redirect.sonarsource.com/doc/install-configure-scanner.html');
-    });
+
+  var downloader = new Downloader({
+    url: downloadUrl,
+    directory: installFolder,
+    cloneFiles: false,
+    onResponse: (response) => {
+      bar.total = response.headers['content-length'];
+      log(`Total to download: ${bar.total}`);
+    },
+    onProgress: (percentage, chunk, remainingSize) => {
+      bar.tick(chunk.length);
+    }
+  });
+
+  try {
+    const { filePath } = await downloader.download();
+    const output = path.dirname(filePath);
+
+    log(`Decompressing: ${filePath} into: ${output}`);
+    try {
+      const files = await decompress(filePath, output);
+      log(`Decompressing done (${files.length}) files.`);
+      fs.unlinkSync(filePath);
+    } catch (e) {
+      console.log(e);
+    }
+    log(`passExecutableCallback: ${platformExecutable}`);
+    passExecutableCallback(platformExecutable);
+  } catch (err) {
+    logError(`ERROR: impossible to download and extract binary: ${err.message}`);
+    logError(`       SonarScanner binaries probably don't exist for your OS (${targetOS}).`);
+    logError(
+      '       In such situation, the best solution is to install the standard SonarScanner (requires a JVM).'
+    );
+    logError('       Check it out at https://redirect.sonarsource.com/doc/install-configure-scanner.html');
+  }
 }
 
 /*

@@ -1,7 +1,7 @@
 {
   "name": "@etnetera/sonarqube-scanner",
   "description": "Forked SonarQube/SonarCloud Scanner for the JavaScript world. Forked from: https://github.com/bellingard/sonar-scanner-npm",
-  "version": "2.8.3",
+  "version": "2.8.4",
   "homepage": "https://github.com/bellingard/sonar-scanner-npm",
   "author": {
     "name": "Fabrice Bellingard",
@@ -23,12 +23,13 @@
     "node": ">= 0.10"
   },
   "dependencies": {
-    "download": "^6.2.5",
+    "decompress": "^4.2.1",
     "extend": "3.0.2",
     "fancy-log": "^1.3.3",
     "lodash.get": "^4.4.2",
     "lodash.uniq": "^4.5.0",
     "mkdirp": "^1.0.3",
+    "nodejs-file-downloader": "^4.10.1",
     "progress": "^2.0.3",
     "read-pkg": "2.0.0",
     "slugify": "^1.4.0"
